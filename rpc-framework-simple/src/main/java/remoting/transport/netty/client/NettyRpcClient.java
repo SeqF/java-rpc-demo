@@ -1,5 +1,8 @@
 package remoting.transport.netty.client;
 
+import enums.CompressTypeEnum;
+import enums.SerializationTypeEnum;
+import factory.SingletonFactory;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
@@ -15,6 +18,8 @@ import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.timeout.IdleStateHandler;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import registry.ServiceDiscovery;
+import remoting.constants.RpcConstants;
 import remoting.dto.RpcMessage;
 import remoting.dto.RpcRequest;
 import remoting.dto.RpcResponse;
@@ -81,11 +86,38 @@ public class NettyRpcClient implements RpcRequestTransport {
         InetSocketAddress address = serviceDiscovery.lookupService(rpcRequest);
         Channel channel = getChannel(address);
         if (channel.isActive()) {
-            unprocessedRequests.put(rpcRequest.getRequestId(),resultFuture);
+            unprocessedRequests.put(rpcRequest.getRequestId(), resultFuture);
             RpcMessage rpcMessage = RpcMessage.builder()
                     .data(rpcRequest)
-                    .codec(SerizlizationTypeEnum).build();
+                    .codec(SerializationTypeEnum.PROTOSTUFF.getCode())
+                    .compress(CompressTypeEnum.GZIP.getCode())
+                    .messageType(RpcConstants.REQUEST_TYPE)
+                    .build();
+            channel.writeAndFlush(rpcMessage).addListener((ChannelFutureListener) future -> {
+                if (future.isSuccess()) {
+                    log.info("client send message: {}", rpcMessage);
+                } else {
+                    future.channel().close();
+                    resultFuture.completeExceptionally(future.cause());
+                    log.error("Send failed:", future.cause());
+                }
+            });
+        } else {
+            throw new IllegalStateException();
         }
-        return null;
+        return resultFuture;
+    }
+
+    public Channel getChannel(InetSocketAddress inetSocketAddress) {
+        Channel channel = channelProvider.get(inetSocketAddress);
+        if (channel == null) {
+            channel = doConnect(inetSocketAddress);
+            channelProvider.set(inetSocketAddress, channel);
+        }
+        return channel;
+    }
+
+    public void close() {
+        eventLoopGroup.shutdownGracefully();
     }
 }
