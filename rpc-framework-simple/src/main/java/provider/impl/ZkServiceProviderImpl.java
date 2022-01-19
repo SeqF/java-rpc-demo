@@ -1,6 +1,7 @@
 package provider.impl;
 
 import config.RpcServiceConfig;
+import extension.ExtensionLoader;
 import provider.ServiceProvider;
 import registry.ServiceRegistry;
 

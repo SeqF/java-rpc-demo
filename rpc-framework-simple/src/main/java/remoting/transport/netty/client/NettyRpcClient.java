@@ -2,6 +2,7 @@ package remoting.transport.netty.client;
 
 import enums.CompressTypeEnum;
 import enums.SerializationTypeEnum;
+import extension.ExtensionLoader;
 import factory.SingletonFactory;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -24,6 +25,8 @@ import remoting.dto.RpcMessage;
 import remoting.dto.RpcRequest;
 import remoting.dto.RpcResponse;
 import remoting.transport.RpcRequestTransport;
+import remoting.transport.netty.codec.RpcMessageDecoder;
+import remoting.transport.netty.codec.RpcMessageEncoder;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
