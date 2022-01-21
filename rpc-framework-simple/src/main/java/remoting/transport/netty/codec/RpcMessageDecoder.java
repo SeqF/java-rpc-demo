@@ -1,5 +1,6 @@
 package remoting.transport.netty.codec;
 
+import compress.Compress;
 import enums.CompressTypeEnum;
 import enums.SerializationTypeEnum;
 import extension.ExtensionLoader;
@@ -11,6 +12,7 @@ import remoting.constants.RpcConstants;
 import remoting.dto.RpcMessage;
 import remoting.dto.RpcRequest;
 import remoting.dto.RpcResponse;
+import serializer.Serializer;
 
 import java.io.PipedReader;
 import java.security.cert.Extension;

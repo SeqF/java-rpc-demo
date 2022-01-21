@@ -1,5 +1,6 @@
 package remoting.transport.netty.codec;
 
+import compress.Compress;
 import enums.CompressTypeEnum;
 import enums.SerializationTypeEnum;
 import extension.ExtensionLoader;
@@ -48,7 +49,7 @@ public class RpcMessageEncoder extends MessageToByteEncoder<RpcMessage> {
                 // compress the bytes
                 String compressName = CompressTypeEnum.getName(rpcMessage.getCompress());
                 Compress compress = ExtensionLoader.getExtensionLoader(Compress.class).getExtension(compressName);
-                bodyBytes = compress.compress(rpcMessage.getData());
+                bodyBytes = compress.compress(bodyBytes);
                 fullLength += bodyBytes.length;
             }
 
