@@ -1,6 +1,7 @@
 package config;
 
 import lombok.extern.slf4j.Slf4j;
+import registry.zk.util.CuratorUtils;
 import remoting.transport.netty.server.NettyRpcServer;
 import utils.concurrent.threadpool.ThreadPoolFactoryUtils;
 
